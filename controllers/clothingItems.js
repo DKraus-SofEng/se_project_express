@@ -1,30 +1,26 @@
 const ClothingItem = require("../models/clothingItem");
 const handleError = require("../utils/handleError");
 
-//POST CLOTHING ITEM
+// POST CLOTHING ITEM
 
 const createClothingItem = (req, res) => {
-  console.log(req.body);
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
 
   return ClothingItem.create({ name, weather, imageUrl, owner })
-    .then((item) => {
-      console.log(item);
-      res.status(201).send({ data: item });
-    })
-    .catch((err) => handleError(res, err, createClothingItem));
+    .then((item) => res.status(201).send({ data: item }))
+    .catch((err) => handleError(res, err, "createClothingItem"));
 };
 
-//GET CLOTHING ITEMS
+// GET CLOTHING ITEMS
 
 const getClothingItems = (req, res) => {
   return ClothingItem.find({})
     .then((clothingItems) => res.status(200).send(clothingItems))
-    .catch((err) => handleError(res, err, getClothingItem));
+    .catch((err) => handleError(res, err, "getClothingItems"));
 };
 
-//UPDATE CLOTHING ITEMS
+// UPDATE CLOTHING ITEMS
 
 const updateClothingItem = (req, res) => {
   const { itemId } = req.params;
@@ -32,20 +28,20 @@ const updateClothingItem = (req, res) => {
   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } }, { new: true })
     .orFail()
     .then((clothingItem) => res.status(200).send({ data: clothingItem }))
-    .catch((err) => handleError(res, err, updateClothingItem));
+    .catch((err) => handleError(res, err, "updateClothingItem"));
 };
 
-//DELETE CLOTHING ITEMS
+// DELETE CLOTHING ITEMS
 
 const deleteClothingItem = (req, res) => {
   const { itemId } = req.params;
   ClothingItem.findByIdAndDelete(itemId)
     .orFail()
     .then(() => res.status(200).send({ message: "Clothing item deleted" }))
-    .catch((err) => handleError(res, err, deleteClothingItem));
+    .catch((err) => handleError(res, err, "deleteClothingItem"));
 };
 
-//LIKE CLOTHING ITEM
+// LIKE CLOTHING ITEM
 
 const likeClothingItem = (req, res) => {
   const { itemId } = req.params;
@@ -57,7 +53,7 @@ const likeClothingItem = (req, res) => {
   )
     .orFail()
     .then((item) => res.status(200).send({ data: item }))
-    .catch((err) => handleError(res, err, likeClothingItem));
+    .catch((err) => handleError(res, err, "likeClothingItem"));
 };
 
 const dislikeClothingItem = (req, res) => {
@@ -70,7 +66,7 @@ const dislikeClothingItem = (req, res) => {
   )
     .orFail()
     .then((item) => res.status(200).send({ data: item }))
-    .catch((err) => handleError(res, err, dislikeClothingItem));
+    .catch((err) => handleError(res, err, "dislikeClothingItem"));
 };
 
 module.exports = {
