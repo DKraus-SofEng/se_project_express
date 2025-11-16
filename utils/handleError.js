@@ -5,7 +5,7 @@ function handleError(res, err, context = "server") {
   if (err.name === "ValidationError") {
     return res.status(BAD_REQUEST).send({ message: err.message });
   }
-  if (err.name === "Cast Error") {
+  if (err.name === "CastError") {
     return res.status(BAD_REQUEST).send({ message: "Invalid ID format" });
   }
   if (err.name === "DocumentNotFoundError") {
