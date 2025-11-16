@@ -1,6 +1,6 @@
 const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require("./errors");
 
-function handleError(res, err, context = "server") {
+function handleError(res, err) {
   console.error(err);
   if (err.name === "ValidationError") {
     return res.status(BAD_REQUEST).send({ message: err.message });
@@ -11,7 +11,7 @@ function handleError(res, err, context = "server") {
   if (err.name === "DocumentNotFoundError") {
     return res.status(NOT_FOUND).send({ message: "Resource not found" });
   }
-  res
+  return res
     .status(INTERNAL_SERVER_ERROR)
     .send({ message: "An error has occurred on the server" });
 }
