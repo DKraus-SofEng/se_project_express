@@ -14,11 +14,10 @@ const createClothingItem = (req, res) => {
 
 // GET CLOTHING ITEMS
 
-const getClothingItems = (req, res) => {
-  return ClothingItem.find({})
-    .then((clothingItems) => res.status(200).send(clothingItems))
+const getClothingItems = (req, res) =>
+  ClothingItem.find({})
+    .then((items) => res.status(200).send(items))
     .catch((err) => handleError(res, err, "getClothingItems"));
-};
 
 // UPDATE CLOTHING ITEMS
 
