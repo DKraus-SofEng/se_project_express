@@ -33,10 +33,22 @@ const updateClothingItem = (req, res) => {
 // DELETE CLOTHING ITEMS
 
 const deleteClothingItem = (req, res) => {
+  const userId = req.user._id;
   const { itemId } = req.params;
-  ClothingItem.findByIdAndDelete(itemId)
+
+  ClothingItem.findById(itemId)
     .orFail()
-    .then(() => res.status(200).send({ message: "Clothing item deleted" }))
+    .then((item) => {
+      if (item.owner.toString() !== userId) {
+        return res
+          .status(403)
+          .send({ message: "You can only delete your own items." });
+      }
+
+      return ClothingItem.findByIdAndDelete(itemId).then(() =>
+        res.status(200).send({ message: "Clothing item deleted" })
+      );
+    })
     .catch((err) => handleError(res, err, "deleteClothingItem"));
 };
 
