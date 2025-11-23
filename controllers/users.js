@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
@@ -26,6 +27,7 @@ const createUser = (req, res) => {
       delete userObj.password; // Removes password before sending
       res.status(201).send(userObj);
     })
+    // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.code === 11000) {
         return res.status(409).send({ message: "Email already exists" });
