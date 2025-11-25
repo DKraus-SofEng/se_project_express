@@ -76,7 +76,7 @@ The API is designed to be used with a React frontend and follows best practices 
 
 ## Project Pitch Video
 
-You can find the project pitch video at: [URL to be added later]
+You can find the project pitch video at: [\[URL to be added later\]](https://www.loom.com/share/1283351aac1f48828d67e8e5694f8ed6).
 
 ## License
 
