@@ -4,6 +4,7 @@ const handleError = require("../utils/handleError");
 // POST CLOTHING ITEM
 
 const createClothingItem = (req, res) => {
+  console.log("req.user:", req.user);
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
 
@@ -14,10 +15,11 @@ const createClothingItem = (req, res) => {
 
 // GET CLOTHING ITEMS
 
-const getClothingItems = (req, res) =>
+const getClothingItems = (req, res, next) => {
   ClothingItem.find({})
     .then((items) => res.status(200).send(items))
     .catch((err) => handleError(res, err, "getClothingItems"));
+};
 
 // UPDATE CLOTHING ITEMS
 
@@ -62,8 +64,12 @@ const likeClothingItem = (req, res) => {
     { $addToSet: { likes: userId } }, // add userId to likes array if not present
     { new: true }
   )
-    .orFail()
-    .then((item) => res.status(200).send({ data: item }))
+    .then((item) => {
+      if (!item) {
+        return res.status(404).send({ message: "Item not found" });
+      }
+      res.status(200).send({ data: item });
+    })
     .catch((err) => handleError(res, err, "likeClothingItem"));
 };
 
@@ -75,9 +81,13 @@ const dislikeClothingItem = (req, res) => {
     { $pull: { likes: userId } }, // remove userId from likes array
     { new: true }
   )
-    .orFail()
-    .then((item) => res.status(200).send({ data: item }))
-    .catch((err) => handleError(res, err, "dislikeClothingItem"));
+    .then((item) => {
+      if (!item) {
+        return res.status(404).send({ message: "Item not found" });
+      }
+      res.status(200).send({ data: item });
+    })
+    .catch((err) => handleError(res, err, "likeClothingItem"));
 };
 
 module.exports = {

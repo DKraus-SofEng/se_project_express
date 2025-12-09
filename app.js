@@ -4,6 +4,7 @@ const cors = require("cors");
 const mainRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const auth = require("./middlewares/auth");
+const clothingItemsRouter = require("./routes/clothingItems");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -20,6 +21,7 @@ app.use(cors());
 
 // Public routes
 app.use("/", usersRouter); // POST /handles signup and signin
+app.use("/items", clothingItemsRouter);
 
 // Protected routes
 
