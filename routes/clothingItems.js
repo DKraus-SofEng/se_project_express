@@ -8,6 +8,7 @@ const {
   dislikeClothingItem,
 } = require("../controllers/clothingItems");
 const auth = require("../middlewares/auth");
+const { celebrate, Joi } = require("celebrate");
 
 // CRUD
 

@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -5,6 +6,9 @@ const mainRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const auth = require("./middlewares/auth");
 const clothingItemsRouter = require("./routes/clothingItems");
+const errorHandler = require(`./middlewares/error-handler`);
+const { errors } = require("celebrate");
+const { requestLogger, errorLogger } = require("./middlewares/logger");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -18,6 +22,7 @@ mongoose
 
 app.use(express.json());
 app.use(cors());
+app.use(requestLogger);
 
 // Public routes
 app.use("/", usersRouter); // POST /handles signup and signin
@@ -28,6 +33,13 @@ app.use("/items", clothingItemsRouter);
 app.use(auth);
 app.use("/", mainRouter);
 
-app.listen(PORT, () => {
+// Error logging
+app.use(errorLogger);
+
+// Error handling
+app.use(errors()); // celebrate error handler
+app.use(errorHandler); // our centralized handler
+
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Listening on ${PORT}`);
 });

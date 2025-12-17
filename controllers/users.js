@@ -2,21 +2,39 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const handleError = require("../utils/handleError");
-
+const {
+  BadRequestError,
+  UnauthorizedError,
+  NotFoundError,
+  ConflictError,
+} = require(`../utils/errors`);
 const { JWT_SECRET } = require("../utils/config");
 
 // GET CURRENT USER
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   const userId = req.user._id;
   User.findById(userId)
     .orFail()
     .then((user) => res.status(200).send(user))
-    .catch((err) => handleError(res, err, "getCurrentUser"));
+    .catch((err) => {
+      if (err.name === "CastError") {
+        return next(
+          new BadRequestError("The id string is in an invalid format")
+        );
+      }
+      if (err.name === "DocumentNotFoundError") {
+        return next(new NotFoundError("User not found"));
+      }
+
+      if (err.code === 11000) {
+        return next(new ConflictError("Email already exists"));
+      }
+      return next(err);
+    });
 };
 
 // POST USER
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
   // console.log("createUser called", req.body);
   bcrypt
@@ -27,23 +45,22 @@ const createUser = (req, res) => {
       delete userObj.password; // Removes password before sending
       res.status(201).send(userObj);
     })
-
     .catch((err) => {
       if (err.code === 11000) {
-        return res.status(409).send({ message: "Email already exists" });
+        return next(new ConflictError("Email already exists"));
       }
       if (err.name === "ValidationError") {
-        return res.status(400).send({ message: "Invalid user data" });
+        return next(new BadRequestError("Invalid user data"));
       }
-      return handleError(res, err, "createUser");
+      return next(err);
     });
 };
 // LOGIN
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   // Check for missing fields
   if (!email || !password) {
-    return res.status(400).send({ message: "Email and password are required" });
+    return next(new BadRequestError("Email and password are required"));
   }
 
   User.findUserByCredentials(email, password)
@@ -53,13 +70,11 @@ const login = (req, res) => {
       });
       res.send({ token });
     })
-    .catch(() =>
-      res.status(401).send({ message: "Incorrect email or password" })
-    );
+    .catch(() => next(new UnauthorizedError("Incorrect email or password")));
 };
 
 // UPDATE USER
-const updateCurrentUser = (req, res) => {
+const updateCurrentUser = (req, res, next) => {
   const userId = req.user._id;
   const { name, avatar } = req.body;
 
@@ -70,7 +85,15 @@ const updateCurrentUser = (req, res) => {
   )
     .orFail()
     .then((user) => res.status(200).send(user))
-    .catch((err) => handleError(res, err, "updateCurrentUser"));
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        return next(new BadRequestError("Invalid user data"));
+      }
+      if (err.name === "DocumentNotFoundError") {
+        return next(new NotFoundError("User not found"));
+      }
+      return next(err);
+    });
 };
 
 module.exports = { createUser, getCurrentUser, login, updateCurrentUser };

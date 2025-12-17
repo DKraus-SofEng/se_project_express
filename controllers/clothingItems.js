@@ -1,40 +1,56 @@
 const ClothingItem = require("../models/clothingItem");
-const handleError = require("../utils/handleError");
+const {
+  BadRequestError,
+  NotFoundError,
+  ForbiddenError,
+} = require(`../utils/errors`);
 
 // POST CLOTHING ITEM
 
-const createClothingItem = (req, res) => {
+const createClothingItem = (req, res, next) => {
   console.log("req.user:", req.user);
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
 
   return ClothingItem.create({ name, weather, imageUrl, owner })
     .then((item) => res.status(201).send({ data: item }))
-    .catch((err) => handleError(res, err, "createClothingItem"));
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        return next(new BadRequestError("Invalid clothing item data"));
+      }
+      return next(err);
+    });
 };
-
 // GET CLOTHING ITEMS
 
 const getClothingItems = (req, res, next) => {
   ClothingItem.find({})
     .then((items) => res.status(200).send(items))
-    .catch((err) => handleError(res, err, "getClothingItems"));
+    .catch((err) => next(err));
 };
 
 // UPDATE CLOTHING ITEMS
 
-const updateClothingItem = (req, res) => {
+const updateClothingItem = (req, res, next) => {
   const { itemId } = req.params;
   const { imageUrl } = req.body;
   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } }, { new: true })
     .orFail()
     .then((clothingItem) => res.status(200).send({ data: clothingItem }))
-    .catch((err) => handleError(res, err, "updateClothingItem"));
+    .catch((err) => {
+      if (err.name === "ValidationError") {
+        return next(new BadRequestError("Invalid clothing item data"));
+      }
+      if (err.name === "DocumentNotFoundError") {
+        return next(new NotFoundError("Clothing item not found"));
+      }
+      return next(err);
+    });
 };
 
 // DELETE CLOTHING ITEMS
 
-const deleteClothingItem = (req, res) => {
+const deleteClothingItem = (req, res, next) => {
   const userId = req.user._id;
   const { itemId } = req.params;
 
@@ -42,21 +58,24 @@ const deleteClothingItem = (req, res) => {
     .orFail()
     .then((item) => {
       if (item.owner.toString() !== userId) {
-        return res
-          .status(403)
-          .send({ message: "You can only delete your own items." });
+        return next(new ForbiddenError("You can only delete your own items."));
       }
 
       return ClothingItem.findByIdAndDelete(itemId).then(() =>
         res.status(200).send({ message: "Clothing item deleted" })
       );
     })
-    .catch((err) => handleError(res, err, "deleteClothingItem"));
+    .catch((err) => {
+      if (err.name === "DocumentNotFoundError") {
+        return next(new NotFoundError("Clothing item not found"));
+      }
+      return next(err);
+    });
 };
 
 // LIKE CLOTHING ITEM
 
-const likeClothingItem = (req, res) => {
+const likeClothingItem = (req, res, next) => {
   const { itemId } = req.params;
   const userId = req.user._id;
   ClothingItem.findByIdAndUpdate(
@@ -66,14 +85,14 @@ const likeClothingItem = (req, res) => {
   )
     .then((item) => {
       if (!item) {
-        return res.status(404).send({ message: "Item not found" });
+        return next(new NotFoundError("Item not found"));
       }
       res.status(200).send({ data: item });
     })
-    .catch((err) => handleError(res, err, "likeClothingItem"));
+    .catch((err) => next(err));
 };
 
-const dislikeClothingItem = (req, res) => {
+const dislikeClothingItem = (req, res, next) => {
   const { itemId } = req.params;
   const userId = req.user._id;
   ClothingItem.findByIdAndUpdate(
@@ -83,11 +102,11 @@ const dislikeClothingItem = (req, res) => {
   )
     .then((item) => {
       if (!item) {
-        return res.status(404).send({ message: "Item not found" });
+        return next(new NotFoundError("Item not found"));
       }
       res.status(200).send({ data: item });
     })
-    .catch((err) => handleError(res, err, "likeClothingItem"));
+    .catch((err) => next(err));
 };
 
 module.exports = {
