@@ -18,25 +18,30 @@ const getCurrentUser = (req, res, next) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === "CastError") {
+        // Invalid user ID format
         return next(
           new BadRequestError("The id string is in an invalid format")
         );
       }
       if (err.name === "DocumentNotFoundError") {
+        // User not found
         return next(new NotFoundError("User not found"));
       }
-
       if (err.code === 11000) {
+        // Duplicate email
         return next(new ConflictError("Email already exists"));
       }
       return next(err);
     });
 };
 
-// POST USER
+// POST USER (REGISTER)
 const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
-  // console.log("createUser called", req.body);
+  if (!name || !avatar || !email || !password) {
+    // Required fields check
+    return next(new BadRequestError("All fields are required"));
+  }
   bcrypt
     .hash(password, 10)
     .then((hash) => User.create({ name, avatar, email, password: hash }))
@@ -55,6 +60,7 @@ const createUser = (req, res, next) => {
       return next(err);
     });
 };
+
 // LOGIN
 const login = (req, res, next) => {
   const { email, password } = req.body;
@@ -62,7 +68,6 @@ const login = (req, res, next) => {
   if (!email || !password) {
     return next(new BadRequestError("Email and password are required"));
   }
-
   User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
@@ -77,7 +82,10 @@ const login = (req, res, next) => {
 const updateCurrentUser = (req, res, next) => {
   const userId = req.user._id;
   const { name, avatar } = req.body;
-
+  if (!name && !avatar) {
+    // At least one field must be provided
+    return next(new BadRequestError("Name or avatar must be provided"));
+  }
   User.findByIdAndUpdate(
     userId,
     { name, avatar },

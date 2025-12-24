@@ -6,45 +6,15 @@ const {
   updateCurrentUser,
 } = require("../controllers/users");
 const { celebrate, Joi } = require("celebrate");
+const {
+  validateUsersBody,
+  validateSigninBody,
+  validateUpdateUserBody,
+} = require("../middlewares/validation");
 
-router.post(
-  "/signin",
-  celebrate({
-    body: Joi.object()
-      .keys({
-        email: Joi.string().required().email(),
-        password: Joi.string().required(),
-      })
-      .unknown(true),
-  }),
-  login
-);
-router.post(
-  "/signup",
-  celebrate({
-    body: Joi.object()
-      .keys({
-        name: Joi.string().required().min(2).max(30),
-        avatar: Joi.string().uri(),
-        email: Joi.string().required().email(),
-        password: Joi.string().required().min(6),
-      })
-      .unknown(true),
-  }),
-  createUser
-);
+router.post("/signin", validateSigninBody, login);
+router.post("/signup", validateUsersBody, createUser);
 router.get("/me", getCurrentUser);
-router.patch(
-  "/me",
-  celebrate({
-    body: Joi.object()
-      .keys({
-        name: Joi.string().min(2).max(30),
-        avatar: Joi.string().uri(),
-      })
-      .unknown(true),
-  }),
-  updateCurrentUser
-);
+router.patch("/me", validateUpdateUserBody, updateCurrentUser);
 
 module.exports = router;

@@ -24,6 +24,13 @@ app.use(express.json());
 app.use(cors());
 app.use(requestLogger);
 
+// Crash-test endpoint for code review (must be before /signin and /signup)
+app.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+});
+
 // Public routes
 app.use("/", usersRouter); // POST /handles signup and signin
 app.use("/items", clothingItemsRouter);
@@ -38,7 +45,7 @@ app.use(errorLogger);
 
 // Error handling
 app.use(errors()); // celebrate error handler
-app.use(errorHandler); // our centralized handler
+app.use(errorHandler); // centralized handler
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Listening on ${PORT}`);

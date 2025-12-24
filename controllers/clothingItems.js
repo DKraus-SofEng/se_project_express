@@ -6,12 +6,15 @@ const {
 } = require(`../utils/errors`);
 
 // POST CLOTHING ITEM
-
 const createClothingItem = (req, res, next) => {
-  console.log("req.user:", req.user);
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
-
+  // Required fields check
+  if (!name || !weather || !imageUrl) {
+    return next(
+      new BadRequestError("Name, weather, and imageUrl are required")
+    );
+  }
   return ClothingItem.create({ name, weather, imageUrl, owner })
     .then((item) => res.status(201).send({ data: item }))
     .catch((err) => {
@@ -21,8 +24,8 @@ const createClothingItem = (req, res, next) => {
       return next(err);
     });
 };
-// GET CLOTHING ITEMS
 
+// GET CLOTHING ITEMS
 const getClothingItems = (req, res, next) => {
   ClothingItem.find({})
     .then((items) => res.status(200).send(items))
@@ -30,10 +33,12 @@ const getClothingItems = (req, res, next) => {
 };
 
 // UPDATE CLOTHING ITEMS
-
 const updateClothingItem = (req, res, next) => {
   const { itemId } = req.params;
   const { imageUrl } = req.body;
+  if (!imageUrl) {
+    return next(new BadRequestError("imageUrl is required"));
+  }
   ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } }, { new: true })
     .orFail()
     .then((clothingItem) => res.status(200).send({ data: clothingItem }))
@@ -49,18 +54,15 @@ const updateClothingItem = (req, res, next) => {
 };
 
 // DELETE CLOTHING ITEMS
-
 const deleteClothingItem = (req, res, next) => {
   const userId = req.user._id;
   const { itemId } = req.params;
-
   ClothingItem.findById(itemId)
     .orFail()
     .then((item) => {
       if (item.owner.toString() !== userId) {
         return next(new ForbiddenError("You can only delete your own items."));
       }
-
       return ClothingItem.findByIdAndDelete(itemId).then(() =>
         res.status(200).send({ message: "Clothing item deleted" })
       );
@@ -74,7 +76,6 @@ const deleteClothingItem = (req, res, next) => {
 };
 
 // LIKE CLOTHING ITEM
-
 const likeClothingItem = (req, res, next) => {
   const { itemId } = req.params;
   const userId = req.user._id;
@@ -83,15 +84,17 @@ const likeClothingItem = (req, res, next) => {
     { $addToSet: { likes: userId } }, // add userId to likes array if not present
     { new: true }
   )
-    .then((item) => {
-      if (!item) {
+    .orFail()
+    .then((item) => res.status(200).send({ data: item }))
+    .catch((err) => {
+      if (err.name === "DocumentNotFoundError") {
         return next(new NotFoundError("Item not found"));
       }
-      res.status(200).send({ data: item });
-    })
-    .catch((err) => next(err));
+      return next(err);
+    });
 };
 
+// DISLIKE CLOTHING ITEM
 const dislikeClothingItem = (req, res, next) => {
   const { itemId } = req.params;
   const userId = req.user._id;
@@ -100,13 +103,14 @@ const dislikeClothingItem = (req, res, next) => {
     { $pull: { likes: userId } }, // remove userId from likes array
     { new: true }
   )
-    .then((item) => {
-      if (!item) {
+    .orFail()
+    .then((item) => res.status(200).send({ data: item }))
+    .catch((err) => {
+      if (err.name === "DocumentNotFoundError") {
         return next(new NotFoundError("Item not found"));
       }
-      res.status(200).send({ data: item });
-    })
-    .catch((err) => next(err));
+      return next(err);
+    });
 };
 
 module.exports = {

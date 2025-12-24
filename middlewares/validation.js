@@ -39,6 +39,13 @@ module.exports.validateUsersBody = celebrate({
       "string.min": 'The minimum length of the "name" field is 8',
       "string.empty": 'The "password" field must be filled in',
     }),
+    confirmPassword: Joi.string()
+      .required()
+      .valid(Joi.ref("password"))
+      .messages({
+        "any.only": "Passwords do not match",
+        "string.empty": 'The "confirmPassword" field must be filled in',
+      }),
 
     imageUrl: Joi.string().required().custom(validateURL).messages({
       "string.empty": 'The "imageUrl" field must be filled in',
@@ -77,4 +84,17 @@ module.exports.validateIdParam = celebrate({
       }),
     })
     .unknown(true), // allows other params if needed
+});
+
+// update user validator
+module.exports.validateUpdateUserBody = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30).messages({
+      "string.min": 'The minimum length of the "name" field is 2',
+      "string.max": 'The maximum length of the "name" field is 30',
+    }),
+    avatar: Joi.string().uri().messages({
+      "string.uri": 'The "avatar" field must be a valid url',
+    }),
+  }),
 });
