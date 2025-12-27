@@ -48,7 +48,7 @@ const createUser = (req, res, next) => {
     .then((user) => {
       const userObj = user.toObject();
       delete userObj.password; // Removes password before sending
-      res.status(201).send(userObj);
+      res.status(201).send({ data: userObj }); // Wrap user in data property
     })
     .catch((err) => {
       if (err.code === 11000) {
