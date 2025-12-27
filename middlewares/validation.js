@@ -16,9 +16,9 @@ module.exports.validateCardBody = celebrate({
       "string.empty": 'The "name" field must be filled in',
     }),
 
-    imageUrl: Joi.string().required().custom(validateURL).messages({
-      "string.empty": 'The "imageUrl" field must be filled in',
-      "string.uri": 'the "imageUrl" field must be a valid url',
+    avatar: Joi.string().required().custom(validateURL).messages({
+      "string.empty": 'The "avatar" field must be filled in',
+      "string.uri": 'the "avatar" field must be a valid url',
     }),
   }),
 });
@@ -39,17 +39,10 @@ module.exports.validateUsersBody = celebrate({
       "string.min": 'The minimum length of the "name" field is 8',
       "string.empty": 'The "password" field must be filled in',
     }),
-    confirmPassword: Joi.string()
-      .required()
-      .valid(Joi.ref("password"))
-      .messages({
-        "any.only": "Passwords do not match",
-        "string.empty": 'The "confirmPassword" field must be filled in',
-      }),
 
-    imageUrl: Joi.string().required().custom(validateURL).messages({
-      "string.empty": 'The "imageUrl" field must be filled in',
-      "string.uri": 'the "imageUrl" field must be a valid url',
+    avatar: Joi.string().required().custom(validateURL).messages({
+      "string.empty": 'The "avatar" field must be filled in',
+      "string.uri": 'the "avatar" field must be a valid url',
     }),
   }),
 });
