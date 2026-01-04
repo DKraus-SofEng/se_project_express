@@ -2,9 +2,7 @@
 
 ## Description
 
-This is a RESTful API server (backend) for the WTWR (What To Wear) project, built with Node.js, Express, and MongoDB.  
-It provides user authentication, user profile management, and CRUD operations for clothing items.  
-The API is designed to be used with a React frontend and follows best practices for security and error handling.
+This is a RESTful API server (backend) for the WTWR (What To Wear) Tripleten project, built with Node.js, Express, and MongoDB. It provides user authentication, user profile management, and CRUD operations for clothing items. The API is designed to be used with a React frontend and follows best practices for security and error handling.
 
 ## Features
 
@@ -22,9 +20,37 @@ The API is designed to be used with a React frontend and follows best practices 
 - MongoDB & Mongoose
 - JWT (jsonwebtoken)
 - bcryptjs
+- celebrate & Joi (request validation)
 - ESLint (Airbnb base)
 - Prettier
 - CORS
+
+## Request Validation
+
+All incoming requests are validated using [celebrate](https://github.com/arb/celebrate) and [Joi](https://joi.dev/) schemas. This ensures that user input and API payloads meet strict requirements for type, format, and length before processing. See `middlewares/validation.js` for implementation details.
+
+## Frontend Integration
+
+This API is designed to be used with the [WTWR React frontend](https://github.com/DKraus-SofEng/se_project_react).
+
+## Deployment
+
+The production API is deployed on Google Cloud and available at:
+
+https://api.wtwr.bot.nu
+
+- The frontend is configured to use this endpoint for API requests in production.
+- For local development, use the default: `http://localhost:3001`
+
+## Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```
+PORT=3001
+JWT_SECRET=your_jwt_secret
+MONGODB_URI=mongodb://localhost:27017/wtwr_db
+```
 
 ## Getting Started
 
@@ -76,7 +102,7 @@ The API is designed to be used with a React frontend and follows best practices 
 
 ## Project Pitch Video
 
-You can find the project pitch video at: [\[URL to be added later\]](https://www.loom.com/share/1283351aac1f48828d67e8e5694f8ed6).
+You can find the project pitch video at: [Watch here](https://www.loom.com/share/2dc68aec7349403e8c3d6b50cf018095)
 
 ## License
 
