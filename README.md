@@ -100,6 +100,20 @@ MONGODB_URI=mongodb://localhost:27017/wtwr_db
 - Returns appropriate status codes and messages for all errors (400, 401, 403, 404, 409, 500).
 - All error responses contain a `message` field only.
 
+## Testing
+
+This project uses **Jest** and **Supertest** for automated backend testing.
+
+- API endpoints (users, authentication, clothing items) are covered by integration tests.
+- Error handling and validation logic are tested.
+- To run tests, use:
+
+```
+npm test
+```
+
+- Test files are located in the `tests/` folder.
+
 ## Project Pitch Video
 
 You can find the project pitch video at: [Watch here](https://www.loom.com/share/2dc68aec7349403e8c3d6b50cf018095)
@@ -107,5 +121,3 @@ You can find the project pitch video at: [Watch here](https://www.loom.com/share
 ## License
 
 ISC
-
----

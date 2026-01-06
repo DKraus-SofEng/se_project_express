@@ -40,6 +40,4 @@ app.use(errorLogger);
 app.use(errors()); // celebrate error handler
 app.use(errorHandler); // centralized handler
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Listening on ${PORT}`);
-});
+module.exports = app;
