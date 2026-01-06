@@ -14,7 +14,7 @@ const app = express();
 const { PORT = 3001 } = process.env;
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/wtwr_db")
+  .connect(process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/wtwr_db")
   .then(() => {
     console.log("Connected to database");
   })
@@ -23,13 +23,6 @@ mongoose
 app.use(express.json());
 app.use(cors());
 app.use(requestLogger);
-
-// Crash-test endpoint for code review (must be before /signin and /signup)
-app.get("/crash-test", () => {
-  setTimeout(() => {
-    throw new Error("Server will crash now");
-  }, 0);
-});
 
 // Public routes
 app.use("/", usersRouter); // POST /handles signup and signin
