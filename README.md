@@ -118,6 +118,11 @@ npm test
 
 You can find the project pitch video at: [Watch here](https://www.loom.com/share/2dc68aec7349403e8c3d6b50cf018095)
 
+## Links
+
+- **Frontend (GitHub Pages)**: [https://DKraus-SofEng.github.io/se_project_react/](https://DKraus-SofEng.github.io/se_project_react/)
+- **Frontend (Custom Domain)**: [https://wtwr.bot.nu/](https://wtwr.bot.nu/)
+
 ## License
 
 ISC
